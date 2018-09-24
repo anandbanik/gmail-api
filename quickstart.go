@@ -94,19 +94,46 @@ func main() {
 		fmt.Printf("- Labels:: %s\n", msgLabel)
 	}
 
-	/*
-		r, err := srv.Users.Labels.List(user).Do()
+	fmt.Printf("=======================================================\n")
+
+	ms, err := srv.Users.Messages.List(user).Q("is:UNREAD after:2010/1/31 before:2011/1/31").Do()
+
+	//ms, err := srv.Users.Messages.List(user).Q("after:2010/1/31 before:2010/7/21").Do()
+
+	if err != nil {
+		log.Fatalf("Unable to retrieve messages: %v", err)
+	}
+	if len(ms.Messages) == 0 {
+		fmt.Println("No messages found.")
+		return
+	}
+	fmt.Println("Messages:")
+
+	for _, l := range ms.Messages {
+		msg, err := srv.Users.Messages.Get(user, l.Id).Do()
 		if err != nil {
-			log.Fatalf("Unable to retrieve labels: %v", err)
+			log.Fatalf("Unable to retrieve message %v: %v", l.Id, err)
 		}
-		if len(r.Labels) == 0 {
-			fmt.Println("No labels found.")
-			return
+		for _, mailHeader := range msg.Payload.Headers {
+
+			if mailHeader.Name == "Subject" {
+				fmt.Printf("- %s\n", mailHeader.Value)
+			}
+
+			if mailHeader.Name == "Date" {
+				fmt.Printf("- %s\n", mailHeader.Value)
+			}
+
+			if mailHeader.Name == "From" {
+				fmt.Printf("- %s\n", mailHeader.Value)
+			}
+
 		}
-		fmt.Println("Labels:")
-		for _, l := range r.Labels {
-			fmt.Printf("- %s\n", l.Name)
-		}
+		fmt.Printf("=======================================================\n")
+	}
+
+	/*
+
 
 		ms, err := srv.Users.Messages.List(user).Q("is:UNREAD").Do()
 
@@ -153,6 +180,20 @@ func main() {
 			}
 
 			fmt.Printf("=======================================================\n")
+		}
+
+
+		r, err := srv.Users.Labels.List(user).Do()
+		if err != nil {
+			log.Fatalf("Unable to retrieve labels: %v", err)
+		}
+		if len(r.Labels) == 0 {
+			fmt.Println("No labels found.")
+			return
+		}
+		fmt.Println("Labels:")
+		for _, l := range r.Labels {
+			fmt.Printf("- %s\n", l.Name)
 		}
 	*/
 }
